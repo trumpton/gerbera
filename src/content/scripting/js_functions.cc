@@ -43,6 +43,9 @@
 #include "util/string_converter.h"
 #include "util/tools.h"
 
+#include <fstream>
+#include <sstream>
+
 // extern "C" {
 
 duk_ret_t js_print(duk_context* ctx)
@@ -217,6 +220,83 @@ duk_ret_t js_p2i(duk_context* ctx)
 duk_ret_t js_j2i(duk_context* ctx)
 {
     return convertCharsetGeneric(ctx, J2I);
+}
+
+duk_ret_t js_loadFile(duk_context* ctx)
+{
+  if (duk_get_top(ctx) <1 || duk_get_top(ctx)>2)
+      return DUK_RET_SYNTAX_ERROR;
+
+    // stack: filename/string - mandatory
+    if (!duk_is_string(ctx, 0)) {
+      log_js("Error arg 1 (filename) invalid type, expected string") ;
+      return DUK_RET_TYPE_ERROR;
+    }
+    const char* filename = duk_get_string(ctx, 0);
+
+    // stack: skipcomment/boolean - optional
+    duk_bool_t skipcomment = false ;
+    if (duk_get_top(ctx)==2) {
+      if (!duk_is_boolean(ctx,1)) {
+      log_js("Error arg 2 (skipcomment) invalid type, expected boolean") ;
+      return DUK_RET_TYPE_ERROR;
+      }
+      skipcomment = (duk_bool_t) duk_get_boolean(ctx, 1) ;
+    }
+    
+    
+    std::string document ;
+
+    try {	
+      std::ifstream inFile ;
+      inFile.open(filename) ;
+      if (inFile.fail()) throw filename ;
+
+      for (std::string line; getline(inFile, line);) {
+
+	if (skipcomment) {
+	  // skip comments and blank lines
+	  size_t st=line.find_first_not_of(" \n\r\t") ;
+	  size_t en=line.find_last_not_of(" \n\r\t") ;
+
+	  if (st!=std::string::npos) { // if trimmed line will contains something
+	    line = line.substr(st, en-st+1) ;  
+	    if (line[0]!='#') {
+	      document = document + line + "\n" ;
+	    }
+	  }
+	  
+	} else {
+	  // include comments and blank lines
+	  document = document + line + "\n";
+	  
+	}
+	
+      }
+
+      inFile.close() ;
+      duk_push_string(ctx, document.c_str()) ;
+      return 1 ;
+
+    } catch (const ServerShutdownException&) {
+
+      log_warning("loadFile() Aborting script execution due to server shutdown.");
+      return duk_error(ctx, DUK_ERR_ERROR, "loadFile() Aborting script execution due to server shutdown.\n");
+
+    } catch (const std::runtime_error& e) {
+
+      log_error("{}", e.what());
+
+    } catch (const char* e) {
+
+      log_js("Warning, file not found, returning null: {}", filename) ;
+      duk_push_null(ctx) ;
+      return 0 ;
+
+    }
+    
+    return 0 ;
+
 }
 
 //} // extern "C"

@@ -60,6 +60,9 @@ duk_ret_t js_p2i(duk_context* ctx);
 /// js charset to internal
 duk_ret_t js_j2i(duk_context* ctx);
 
+// \brief Loads string from file, optionally strips comments.
+duk_ret_t js_loadFile(duk_context *ctx) ;
+
 } // extern "C"
 
 #endif //__SCRIPTING_JS_FUNCTIONS_H__

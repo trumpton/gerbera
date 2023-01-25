@@ -448,6 +448,18 @@ within the import and/or the playlist script:
 
     `The 'from' charsets can be defined in the server configuration`
 
+.. js:funciton:: loafFile(filename, stripcomments)
+
+   Loads string data from the specified file.
+
+   :param string filename:
+   :param boolean stripcomments:
+
+   Data is loaded from the specified file.  If the optional stripcomments
+   parameter is provided and set to true, all lines are trimmed, and any
+   lines starting with a hash (#) are removed.
+
+   :returns: string containing the file contents, or null if file not found
 
 Native Functions Available To The Playlist Script
 -------------------------------------------------

@@ -69,6 +69,7 @@ static constexpr auto jsGlobalFunctions = std::array {
     duk_function_list_entry { "m2i", js_m2i, 1 },
     duk_function_list_entry { "p2i", js_p2i, 1 },
     duk_function_list_entry { "j2i", js_j2i, 1 },
+    duk_function_list_entry { "loadFile", js_loadFile, DUK_VARARGS },
     duk_function_list_entry { nullptr, nullptr, 0 },
 };
 
