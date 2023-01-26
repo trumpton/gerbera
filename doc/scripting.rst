@@ -448,7 +448,7 @@ within the import and/or the playlist script:
 
     `The 'from' charsets can be defined in the server configuration`
 
-.. js:funciton:: loafFile(filename, stripcomments)
+.. js:function:: loadFile(filename, stripcomments)
 
    Loads string data from the specified file.
 
