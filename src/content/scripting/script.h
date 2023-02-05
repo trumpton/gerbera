@@ -98,7 +98,7 @@ protected:
         const std::shared_ptr<ScriptingRuntime>& runtime, const std::string& name,
         std::string objName, std::unique_ptr<StringConverter> sc);
 
-    void execute(const std::shared_ptr<CdsObject>& obj, const std::string& rootPath);
+    void call(const std::shared_ptr<CdsObject>& obj, const std::string& functionName, const std::string& rootPath) ;
     void cleanup();
     int gc_counter {};
     void setMetaData(const std::shared_ptr<CdsObject>& obj, const std::shared_ptr<CdsItem>& item, const std::string& sym, const std::string& val) const;

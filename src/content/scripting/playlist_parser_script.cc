@@ -361,10 +361,8 @@ void PlaylistParserScript::processPlaylistObject(const std::shared_ptr<CdsObject
 
     ScriptingRuntime::AutoLock lock(runtime->getMutex());
     try {
-        execute(obj, rootPath);
+      call(obj, "import_playlist_item", rootPath) ;
     } catch (const std::runtime_error&) {
-        cleanup();
-        duk_pop(ctx);
 
         currentHandle = nullptr;
 
@@ -432,10 +430,8 @@ void MetafileParserScript::processObject(const std::shared_ptr<CdsObject>& obj, 
 
     ScriptingRuntime::AutoLock lock(runtime->getMutex());
     try {
-        execute(obj, path);
+      call(obj, "import_metadata_item", path) ;
     } catch (const std::runtime_error&) {
-        cleanup();
-        duk_pop(ctx);
 
         currentHandle = nullptr;
 

@@ -20,39 +20,48 @@
   $Id$
 */
 
-print("Processing playlist: " + playlist.location);
 
-const playlistLocation = playlist.location.substring(0, playlist.location.lastIndexOf('/') + 1);
+// import playlist item
 
-// the function getPlaylistType is defined in common.js
-const type = getPlaylistType(playlist.mimetype);
-var playlist_title = playlist.title;
-var last_path = getLastPath(playlist.location);
+print("PLAYLISTS: playlists.js loaded") ;
 
-const chain = {
-    playlistRoot: { title: 'Playlists', objectType: OBJECT_TYPE_CONTAINER, upnpclass: UPNP_CLASS_CONTAINER, metaData: [] },
-    allPlaylists: { title: 'All Playlists', objectType: OBJECT_TYPE_CONTAINER, upnpclass: UPNP_CLASS_CONTAINER },
-    allDirectories: { title: 'Directories', objectType: OBJECT_TYPE_CONTAINER, upnpclass: UPNP_CLASS_CONTAINER },
+function import_playlist_item(playlist, object_script_path, object_autoscan_id, grb_container_type_audio, grb_container_type_image, grb_container_type_video)
+{
 
-    title: { searchable: true, title: playlist_title, refID: playlist.id, objectType: OBJECT_TYPE_CONTAINER, mtime: playlist.mtime, upnpclass: UPNP_CLASS_PLAYLIST_CONTAINER, metaData: [] },
-    lastPath: { title: last_path, objectType: OBJECT_TYPE_CONTAINER, upnpclass: UPNP_CLASS_CONTAINER, metaData: [] }
-};
-chain.playlistRoot.metaData[M_CONTENT_CLASS] = [ UPNP_CLASS_PLAYLIST_ITEM ];
-
-var playlistChain = addContainerTree([chain.playlistRoot, chain.allPlaylists, chain.title]);
-
-var playlistDirChain;
-if (last_path) {
-    chain.title.searchable = false;
-    playlistDirChain = addContainerTree([chain.playlistRoot, chain.allDirectories, chain.lastPath, chain.title]);
-}
-
-if (type === '') {
-    print("Unknown playlist mimetype: '" + playlist.mimetype + "' of playlist '" + playlist.location + "'");
-} else if (type === 'm3u') {
-    readM3uPlaylist(playlist_title, playlistChain, playlistDirChain);
-} else if (type === 'pls') {
-    readPlsPlaylist(playlist_title, playlistChain, playlistDirChain);
-} else if (type === 'asx') {
-    readAsxPlaylist(playlist_title, playlistChain, playlistDirChain);
+    print("Processing playlist: " + playlist.location);
+   
+    const playlistLocation = playlist.location.substring(0, playlist.location.lastIndexOf('/') + 1);
+    
+    // the function getPlaylistType is defined in common.js
+    const type = getPlaylistType(playlist.mimetype);
+    var playlist_title = playlist.title;
+    var last_path = getLastPath(playlist.location);
+    
+    const chain = {
+	playlistRoot: { title: 'Playlists', objectType: OBJECT_TYPE_CONTAINER, upnpclass: UPNP_CLASS_CONTAINER, metaData: [] },
+	allPlaylists: { title: 'All Playlists', objectType: OBJECT_TYPE_CONTAINER, upnpclass: UPNP_CLASS_CONTAINER },
+	allDirectories: { title: 'Directories', objectType: OBJECT_TYPE_CONTAINER, upnpclass: UPNP_CLASS_CONTAINER },
+	
+	title: { searchable: true, title: playlist_title, refID: playlist.id, objectType: OBJECT_TYPE_CONTAINER, mtime: playlist.mtime, upnpclass: UPNP_CLASS_PLAYLIST_CONTAINER, metaData: [] },
+	lastPath: { title: last_path, objectType: OBJECT_TYPE_CONTAINER, upnpclass: UPNP_CLASS_CONTAINER, metaData: [] }
+    };
+    chain.playlistRoot.metaData[M_CONTENT_CLASS] = [ UPNP_CLASS_PLAYLIST_ITEM ];
+    
+    var playlistChain = addContainerTree([chain.playlistRoot, chain.allPlaylists, chain.title]);
+    
+    var playlistDirChain;
+    if (last_path) {
+	chain.title.searchable = false;
+	playlistDirChain = addContainerTree([chain.playlistRoot, chain.allDirectories, chain.lastPath, chain.title]);
+    }
+    
+    if (type === '') {
+	print("Unknown playlist mimetype: '" + playlist.mimetype + "' of playlist '" + playlist.location + "'");
+    } else if (type === 'm3u') {
+	readM3uPlaylist(playlist_title, playlistChain, playlistDirChain);
+    } else if (type === 'pls') {
+	readPlsPlaylist(playlist_title, playlistChain, playlistDirChain);
+    } else if (type === 'asx') {
+	readAsxPlaylist(playlist_title, playlistChain, playlistDirChain);
+    }
 }

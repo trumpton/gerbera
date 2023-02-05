@@ -620,6 +620,23 @@ We start with a walkthrough of the default import script, it is called import.js
 Below are the import script functions that organize our content in the database by creating the virtual structure.
 Each media type - audio, image and video is handled by a separate function.
 
+Import Function
+:::::::::::::::
+
+Each file that is to be imported into the database is passed by the Gerbera application in turn as an
+object to the import_media_item() function in the import.js file.
+
+function import_media_item(object, file, id, typeaudio, typeimage, typevideo)
+
+* object - The object containing the item's metadata
+* path - The path to the media files
+* id - Auto scan identifier
+* typeaudio - object.container.album.musicAlbum
+* typeimage - object.container.album.photoAlbum
+* typevideo - object.container
+
+Depending on the type of media, this function calls one of the addAudio(), addImage() or addVideo() functions.
+
 Audio Content Handler
 :::::::::::::::::::::
 
@@ -708,9 +725,8 @@ content handler.
 Playlist Script
 ---------------
 
-The default playlist parsing script is called playlists.js, similar to the import script it works with a global object
-which is called 'playlist', the fields are similar to the 'orig' that is used in the import script with the exception of
-the playlistOrder field which is special to playlists.
+The default playlist parsing script is called playlists.js, and works in a similar way to the import.js script
+except that the playlist data is passed to the import_playlist_item() function in the playlists.js file.
 
 Another big difference between playlist and import scripts is, that playlist scripts can add new media to the database, while
 import scripts only process already existing objects (the ones found in PC Directory) and just add additional virtual items.
@@ -718,6 +734,21 @@ import scripts only process already existing objects (the ones found in PC Direc
 The default playlist script implementation supports parsing of m3u and pls formats, but you can add support for parsing of any
 ASCII based playlist format.
 
+Import Function
+:::::::::::::::
+
+Each playlist file that is to be imported into the database is passed by the Gerbera application in turn as an
+object to the import_playlist_item() function in the playlists.js file.
+
+function import_playlist_item(object, file, id, typeaudio, typeimage, typevideo)
+
+* object - The object containing the playlist item data
+* path - The path to the media files
+* id - Auto scan identifier
+* typeaudio - object.container.album.musicAlbum
+* typeimage - object.container.album.photoAlbum
+* typevideo - object.container
+            
 Adding Items
 ::::::::::::
 
@@ -742,7 +773,7 @@ Below is the complete function with some comments:
 Main Parsing
 ::::::::::::
 
-The actual parsing is done in the main part of the script. First, the type of the playlist is determined (based on the
+The actual parsing is done in the import_playlist_item() function. First, the type of the playlist is determined (based on the
 playlist mimetype), then the correct parser is chosen. The parsing itself is a loop, where each call to readln() returns
 exactly one line of text from the playlist. There is no possibility to go back, each readln() invocation will retrieve
 the next line until end of file is reached.
@@ -754,6 +785,29 @@ probably the time to take a closer look.
     :start-after: // doc-playlist-m3u-parse-begin
     :end-before: // doc-playlist-m3u-parse-end
     :language: js
+
+
+Metadata Script
+---------------
+
+The default metadata parsing script is called metadata.js, and works in a similar way to the import.js script
+except that the object data is passed to the import_metadata_item() function in the metadata.js file.
+
+Import Function
+:::::::::::::::
+
+Metadata that is to be imported into the database is passed by the Gerbera application in turn as an
+object to the import_metadata_item() function in the metadata.js file.
+
+function import_metadata_item(object, file, id, typeaudio, typeimage, typevideo)
+
+* object - The object containing the metadata
+* path - The path to the media files
+* id - Auto scan identifier
+* typeaudio - object.container.album.musicAlbum
+* typeimage - object.container.album.photoAlbum
+* typevideo - object.container
+
 
 **Happy scripting!**
 
@@ -822,7 +876,7 @@ Create a transcoder-script
 Modify Your Import Scripts
 --------------------------
 
-Add following code to the playlist.js script inside the if-statement.
+Add following code to the playlists.js script inside the if-statement.
 
 ::
 
@@ -950,7 +1004,7 @@ Add following code to the playlist.js script inside the if-statement.
      createSubItem(thisFileName, thisGenre, thisDate, discArtist, discTitle, thisArtist, thisTitle, thisTrackIdx, thisStart, thisStop);
   }
 
-And add a function createSubItem to playlist.js:
+And add a function createSubItem to playlists.js:
 
 ::
 

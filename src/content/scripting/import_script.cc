@@ -52,9 +52,8 @@ void ImportScript::processCdsObject(const std::shared_ptr<CdsObject>& obj, const
 {
     processed = obj;
     try {
-        execute(obj, scriptPath);
+        call(obj, "import_media_item", scriptPath) ;
     } catch (const std::runtime_error&) {
-        cleanup();
         processed = nullptr;
         throw;
     }

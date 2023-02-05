@@ -20,11 +20,18 @@
   $Id$
 */
 
-const arr = object_script_path.split('.');
-print("Processing metafile: " + object_script_path + " for " + obj.location + " " + arr[arr.length-1].toLowerCase());
-switch (arr[arr.length-1].toLowerCase()) {
+// import media item
+
+print("METADATA: metadata.js loaded") ;
+
+function import_metadata_item(obj, object_script_path, object_autoscan_id, grb_container_type_audio, grb_container_type_image, grb_container_type_video)
+{
+    const arr = object_script_path.split('.');
+    print("Processing metafile: " + object_script_path + " for " + obj.location + " " + arr[arr.length-1].toLowerCase());
+    switch (arr[arr.length-1].toLowerCase()) {
     case "nfo":
         parseNfo(obj, object_script_path);
         updateCdsObject();
         break;
+    }
 }

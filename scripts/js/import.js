@@ -22,7 +22,25 @@
 
 // main script part
 
-if (getPlaylistType(orig.mimetype) === '') {
+print("IMPORT: import.js loaded") ;
+
+// Global Variables
+var object_script_path ;
+var object_autoscan_id ;
+var grb_container_type_audio ;
+var grb_container_type_image ;
+var grb_container_type_video ;
+
+function import_media_item(orig, script, autoscanid, typeaudio, typeimage, typevideo)
+{
+    // Set / update global variables
+    object_script_path = script ;
+    object_autoscan_id = autoscanid ;
+    grb_container_type_audio = typeaudio ;
+    grb_container_type_image = typeimage ;
+    grb_container_type_video = typevideo ;
+
+    if (getPlaylistType(orig.mimetype) === '') {
     var arr = orig.mimetype.split('/');
     var mime = arr[0];
 
@@ -100,4 +118,6 @@ if (getPlaylistType(orig.mimetype) === '') {
             }
             break;
     }
+  }
 }
+

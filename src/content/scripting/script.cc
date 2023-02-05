@@ -324,7 +324,9 @@ Script::Script(const std::shared_ptr<ContentManager>& content,
             log_js("Unable to load {}: {}", commonScrPath, e.what());
         }
     }
+
     std::string customScrPath = config->getOption(CFG_IMPORT_SCRIPTING_CUSTOM_SCRIPT);
+
     if (!customScrPath.empty()) {
         try {
             _load(customScrPath);
@@ -389,11 +391,15 @@ void Script::_load(const fs::path& scriptPath)
 
 void Script::load(const fs::path& scriptPath)
 {
-    ScriptingRuntime::AutoLock lock(runtime->getMutex());
-    duk_push_thread_stash(ctx, ctx);
-    _load(scriptPath);
-    duk_put_prop_string(ctx, -2, "script");
-    duk_pop(ctx);
+  if (!scriptPath.empty()) {
+    try {
+      _load(scriptPath);
+      _execute();
+    } catch (const std::runtime_error& e) {
+      log_error("Unable to load {}: {}", scriptPath.c_str(), e.what());
+    }
+  }
+
 }
 
 void Script::_execute()
@@ -411,55 +417,65 @@ void Script::_execute()
 #define OBJECT_SCRIPT_PATH "object_script_path"
 #define OBJECT_AUTOSCAN_ID "object_autoscan_id"
 
-void Script::cleanup()
+void Script::call(const std::shared_ptr<CdsObject>& obj, const std::string& functionName, const std::string& rootPath)
 {
-    duk_push_global_object(ctx);
-    duk_del_prop_string(ctx, -1, objectName.c_str());
-    duk_del_prop_string(ctx, -1, OBJECT_SCRIPT_PATH);
-    duk_del_prop_string(ctx, -1, OBJECT_AUTOSCAN_ID);
-    duk_del_prop_string(ctx, -1, GRB_CONTAINERTYPE_AUDIO);
-    duk_del_prop_string(ctx, -1, GRB_CONTAINERTYPE_VIDEO);
-    duk_del_prop_string(ctx, -1, GRB_CONTAINERTYPE_IMAGE);
-}
 
-void Script::execute(const std::shared_ptr<CdsObject>& obj, const std::string& rootPath)
-{
-    cdsObject2dukObject(obj);
-    duk_put_global_string(ctx, objectName.c_str());
+  // functionName(object, rootPath, autoScanId, ContainerAudio, ContainerImage, ContainerVideo)
 
-    duk_push_string(ctx, rootPath.c_str());
-    duk_put_global_string(ctx, OBJECT_SCRIPT_PATH);
+  // Push function onto stack
+  if (!duk_get_global_string(ctx, functionName.c_str())) {
+    log_error("javascript function not found: {}()", functionName.c_str()) ;
+    duk_pop(ctx) ;
+    throw_std_runtime_error("javascript function not found: {}()", functionName.c_str()) ;
+  }
 
-    auto autoScan = content->getAutoscanDirectory(rootPath);
-    if (autoScan && !rootPath.empty()) {
-        duk_push_sprintf(ctx, "%d", autoScan->getScanID());
-        duk_put_global_string(ctx, OBJECT_AUTOSCAN_ID);
+  int narg=0 ;
 
-        auto containerMap = autoScan->getContainerTypes();
-        duk_push_sprintf(ctx, "%s", getValueOrDefault(containerMap, AutoscanMediaMode::Audio, AutoscanDirectory::ContainerTypesDefaults.at(AutoscanMediaMode::Audio)).c_str());
-        duk_put_global_string(ctx, GRB_CONTAINERTYPE_AUDIO);
-        duk_push_sprintf(ctx, "%s", getValueOrDefault(containerMap, AutoscanMediaMode::Image, AutoscanDirectory::ContainerTypesDefaults.at(AutoscanMediaMode::Image)).c_str());
-        duk_put_global_string(ctx, GRB_CONTAINERTYPE_IMAGE);
-        duk_push_sprintf(ctx, "%s", getValueOrDefault(containerMap, AutoscanMediaMode::Video, AutoscanDirectory::ContainerTypesDefaults.at(AutoscanMediaMode::Video)).c_str());
-        duk_put_global_string(ctx, GRB_CONTAINERTYPE_VIDEO);
+  // Push obj structure onto stack
+  cdsObject2dukObject(obj); narg++ ;
 
-    } else {
-        duk_push_sprintf(ctx, "%s", AutoscanDirectory::ContainerTypesDefaults.at(AutoscanMediaMode::Audio).c_str());
-        duk_put_global_string(ctx, GRB_CONTAINERTYPE_AUDIO);
-        duk_push_sprintf(ctx, "%s", AutoscanDirectory::ContainerTypesDefaults.at(AutoscanMediaMode::Image).c_str());
-        duk_put_global_string(ctx, GRB_CONTAINERTYPE_IMAGE);
-        duk_push_sprintf(ctx, "%s", AutoscanDirectory::ContainerTypesDefaults.at(AutoscanMediaMode::Video).c_str());
-        duk_put_global_string(ctx, GRB_CONTAINERTYPE_VIDEO);
-    }
+  // push rootPath onto stack
+  duk_push_sprintf(ctx, "%s", rootPath.c_str()) ; narg++ ;
 
-    ScriptingRuntime::AutoLock lock(runtime->getMutex());
-    duk_push_thread_stash(ctx, ctx);
-    duk_get_prop_string(ctx, -1, "script");
-    duk_remove(ctx, -2);
+  auto autoScan = content->getAutoscanDirectory(rootPath);
 
-    _execute();
-    cleanup();
+  if (autoScan && !rootPath.empty()) {
+
+    // Push autoScanId and Containers onto stack
+    duk_push_sprintf(ctx, "%d", autoScan->getScanID()); narg++ ;
+    auto containerMap = autoScan->getContainerTypes();
+    duk_push_sprintf(ctx, "%s", getValueOrDefault(containerMap, AutoscanMediaMode::Audio, AutoscanDirectory::ContainerTypesDefaults.at(AutoscanMediaMode::Audio)).c_str()); narg++ ;
+    duk_push_sprintf(ctx, "%s", getValueOrDefault(containerMap, AutoscanMediaMode::Image, AutoscanDirectory::ContainerTypesDefaults.at(AutoscanMediaMode::Image)).c_str()); narg++ ;
+    duk_push_sprintf(ctx, "%s", getValueOrDefault(containerMap, AutoscanMediaMode::Video, AutoscanDirectory::ContainerTypesDefaults.at(AutoscanMediaMode::Video)).c_str()); narg++ ;
+
+  } else {
+
+    // Push autoScanId and Containers onto stack
+    duk_push_sprintf(ctx, "%d", -1) ; narg++ ;
+    duk_push_sprintf(ctx, "%s", AutoscanDirectory::ContainerTypesDefaults.at(AutoscanMediaMode::Audio).c_str()); narg++ ;
+    duk_push_sprintf(ctx, "%s", AutoscanDirectory::ContainerTypesDefaults.at(AutoscanMediaMode::Image).c_str()); narg++ ;
+    duk_push_sprintf(ctx, "%s", AutoscanDirectory::ContainerTypesDefaults.at(AutoscanMediaMode::Video).c_str()); narg++ ;
+
+  }
+
+  // Log call stack
+  /*
+  duk_push_context_dump(ctx);
+  log_debug("CALLING: {}({})\n", functionName.c_str(), duk_to_string(ctx, -1));
+  duk_pop(ctx);
+  */
+
+  if (duk_pcall(ctx, (duk_idx_t)narg)!=DUK_EXEC_SUCCESS) {
+
+    // Note: The invoked function will be blamed for execution errors, not the actual offending line of code
+    // https://github.com/svaarala/duktape/blob/master/doc/error-objects.rst
+    log_error("javascript runtime error: {}() - {}\n", functionName.c_str(), duk_safe_to_string(ctx, -1));
     duk_pop(ctx);
+    throw_std_runtime_error("javascript runtime error") ;
+
+  }
+  duk_pop(ctx);
+
 }
 
 void Script::setMetaData(const std::shared_ptr<CdsObject>& obj, const std::shared_ptr<CdsItem>& item, const std::string& sym, const std::string& val) const
