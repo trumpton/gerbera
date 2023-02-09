@@ -45,7 +45,40 @@ ImportScript::ImportScript(const std::shared_ptr<ContentManager>& content,
     : Script(content, runtime, "import", "orig", StringConverter::i2i(content->getContext()->getConfig()))
 {
     std::string scriptPath = config->getOption(CFG_IMPORT_SCRIPTING_IMPORT_SCRIPT);
-    load(scriptPath);
+    std::string scriptFolder = config->getOption(CFG_IMPORT_SCRIPTING_IMPORT_SCRIPT_FOLDER);
+    std::string commonFolder = config->getOption(CFG_IMPORT_SCRIPTING_COMMON_SCRIPT_FOLDER);
+    std::string customFolder = config->getOption(CFG_IMPORT_SCRIPTING_CUSTOM_SCRIPT_FOLDER);
+
+    if (!commonFolder.empty()) { loadFolder(commonFolder) ; }
+ 
+    if (!scriptPath.empty()) { load(scriptPath); }
+
+    if (!scriptFolder.empty()) {
+
+      fs::path path(scriptFolder) ;
+      
+      std::string audioOpt = config->getOption(CFG_IMPORT_SCRIPTING_IMPORT_LAYOUT_AUDIO) ;
+      audioOpt = std::string("audio-layout-") + (audioOpt.empty() ? "default" : audioOpt) ; 
+      loadFolder(path / audioOpt) ;
+
+      std::string imageOpt = config->getOption(CFG_IMPORT_SCRIPTING_IMPORT_LAYOUT_IMAGE) ;
+      imageOpt = std::string("image-layout-") + (imageOpt.empty() ? "default" : imageOpt) ; 
+      loadFolder(path / imageOpt) ;
+
+      std::string videoOpt = config->getOption(CFG_IMPORT_SCRIPTING_IMPORT_LAYOUT_VIDEO) ;
+      videoOpt = std::string("video-layout-") + (videoOpt.empty() ? "default" : videoOpt) ; 
+      loadFolder(path / videoOpt) ;
+
+      std::string trailerOpt = config->getOption(CFG_IMPORT_SCRIPTING_IMPORT_LAYOUT_TRAILER) ;
+      trailerOpt = std::string("trailer-layout-") + (trailerOpt.empty() ? "default" : trailerOpt) ; 
+      loadFolder(path / trailerOpt) ;
+
+    }
+
+    if (!customFolder.empty()) {
+      loadFolder(customFolder) ;
+    }
+ 
 }
 
 void ImportScript::processCdsObject(const std::shared_ptr<CdsObject>& obj, const std::string& scriptPath, const std::map<AutoscanMediaMode, std::string>& containerMap)

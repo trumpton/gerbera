@@ -312,29 +312,6 @@ Script::Script(const std::shared_ptr<ContentManager>& content,
 
     defineFunctions(jsGlobalFunctions.data());
 
-    std::string commonScrPath = config->getOption(CFG_IMPORT_SCRIPTING_COMMON_SCRIPT);
-
-    if (commonScrPath.empty()) {
-        log_js("Common script disabled in configuration");
-    } else {
-        try {
-            _load(commonScrPath);
-            _execute();
-        } catch (const std::runtime_error& e) {
-            log_js("Unable to load {}: {}", commonScrPath, e.what());
-        }
-    }
-
-    std::string customScrPath = config->getOption(CFG_IMPORT_SCRIPTING_CUSTOM_SCRIPT);
-
-    if (!customScrPath.empty()) {
-        try {
-            _load(customScrPath);
-            _execute();
-        } catch (const std::runtime_error& e) {
-            log_js("Unable to load {}: {}", customScrPath, e.what());
-        }
-    }
 }
 
 Script::~Script()
@@ -395,11 +372,24 @@ void Script::load(const fs::path& scriptPath)
     try {
       _load(scriptPath);
       _execute();
+      log_js("Loaded {}", scriptPath.c_str()) ;
     } catch (const std::runtime_error& e) {
       log_error("Unable to load {}: {}", scriptPath.c_str(), e.what());
     }
   }
 
+}
+
+void Script::loadFolder(const fs::path& scriptFolder)
+{
+  GrbDirectory dir(scriptFolder, "js") ;
+  if (!dir.exists()) {
+    log_error("Script folder not found: {}", scriptFolder.c_str()) ;
+  } else {
+    for (int i=0; i<dir.size(); i++) {
+      load(dir.at(i)) ;
+    }
+  }
 }
 
 void Script::_execute()

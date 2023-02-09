@@ -235,9 +235,15 @@ PlaylistParserScript::PlaylistParserScript(const std::shared_ptr<ContentManager>
     const std::shared_ptr<ScriptingRuntime>& runtime)
     : ParserScript(content, runtime, "playlist", "playlist")
 {
-    std::string scriptPath = config->getOption(CFG_IMPORT_SCRIPTING_PLAYLIST_SCRIPT);
+    std::string scriptFolder = config->getOption(CFG_IMPORT_SCRIPTING_PLAYLIST_SCRIPT_FOLDER);
+    std::string commonFolder = config->getOption(CFG_IMPORT_SCRIPTING_COMMON_SCRIPT_FOLDER);
+    std::string customFolder = config->getOption(CFG_IMPORT_SCRIPTING_CUSTOM_SCRIPT_FOLDER);
+
     ScriptingRuntime::AutoLock lock(runtime->getMutex());
-    load(scriptPath);
+    
+    if (!commonFolder.empty()) loadFolder(commonFolder) ;
+    if (!scriptFolder.empty()) loadFolder(scriptFolder) ;    
+    if (!customFolder.empty()) loadFolder(customFolder) ;
 }
 
 std::pair<std::shared_ptr<CdsObject>, int> PlaylistParserScript::createObject2cdsObject(const std::shared_ptr<CdsObject>& origObject, const std::string& rootPath)
@@ -398,10 +404,19 @@ MetafileParserScript::MetafileParserScript(const std::shared_ptr<ContentManager>
     const std::shared_ptr<ScriptingRuntime>& runtime)
     : ParserScript(content, runtime, "metafile", "obj")
 {
-    std::string scriptPath = config->getOption(CFG_IMPORT_SCRIPTING_METAFILE_SCRIPT);
+    std::string scriptFolder = config->getOption(CFG_IMPORT_SCRIPTING_METAFILE_SCRIPT_FOLDER);
+    std::string commonFolder = config->getOption(CFG_IMPORT_SCRIPTING_COMMON_SCRIPT_FOLDER);
+    std::string customFolder = config->getOption(CFG_IMPORT_SCRIPTING_CUSTOM_SCRIPT_FOLDER);
+
     defineFunction("updateCdsObject", jsUpdateCdsObject, 0);
-    ScriptingRuntime::AutoLock lock(runtime->getMutex());
-    load(scriptPath);
+    
+    ScriptingRuntime::AutoLock lock(runtime->getMutex());    
+    if (!commonFolder.empty()) loadFolder(commonFolder) ;
+    if (!scriptFolder.empty()) loadFolder(scriptFolder) ;    
+    if (!customFolder.empty()) loadFolder(customFolder) ;
+
+
+
 }
 
 void MetafileParserScript::processObject(const std::shared_ptr<CdsObject>& obj, const fs::path& path)

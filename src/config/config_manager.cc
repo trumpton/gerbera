@@ -319,22 +319,28 @@ void ConfigManager::load(const fs::path& userHome)
     }
 #ifdef HAVE_JS
     // read javascript options
-    co = ConfigDefinition::findConfigSetup(CFG_IMPORT_SCRIPTING_PLAYLIST_SCRIPT);
-    co->setDefaultValue(dataDir / DEFAULT_JS_DIR / DEFAULT_PLAYLISTS_SCRIPT);
+    co = ConfigDefinition::findConfigSetup(CFG_IMPORT_SCRIPTING_PLAYLIST_SCRIPT_FOLDER);
+    co->setDefaultValue(dataDir / DEFAULT_JS_DIR / DEFAULT_PLAYLISTS_SCRIPT_FOLDER);
     co->makeOption(root, self);
 
-    co = ConfigDefinition::findConfigSetup(CFG_IMPORT_SCRIPTING_METAFILE_SCRIPT);
-    co->setDefaultValue(dataDir / DEFAULT_JS_DIR / DEFAULT_METAFILE_SCRIPT);
+    co = ConfigDefinition::findConfigSetup(CFG_IMPORT_SCRIPTING_METAFILE_SCRIPT_FOLDER);
+    co->setDefaultValue(dataDir / DEFAULT_JS_DIR / DEFAULT_METAFILE_SCRIPT_FOLDER);
     co->makeOption(root, self);
 
-    co = ConfigDefinition::findConfigSetup(CFG_IMPORT_SCRIPTING_COMMON_SCRIPT);
-    co->setDefaultValue(dataDir / DEFAULT_JS_DIR / DEFAULT_COMMON_SCRIPT);
+    co = ConfigDefinition::findConfigSetup(CFG_IMPORT_SCRIPTING_COMMON_SCRIPT_FOLDER);
+    co->setDefaultValue(dataDir / DEFAULT_JS_DIR / DEFAULT_COMMON_SCRIPT_FOLDER);
     co->makeOption(root, self);
 
     co = ConfigDefinition::findConfigSetup(CFG_IMPORT_SCRIPTING_CUSTOM_SCRIPT);
     args["resolveEmpty"] = "false";
     co->makeOption(root, self, &args);
     args.clear();
+
+    co = ConfigDefinition::findConfigSetup(CFG_IMPORT_SCRIPTING_CUSTOM_SCRIPT_FOLDER);
+    args["resolveEmpty"] = "false";
+    co->makeOption(root, self, &args);
+    args.clear();
+
 #endif
 
     auto layoutType = setOption(root, CFG_IMPORT_SCRIPTING_VIRTUAL_LAYOUT_TYPE)->getOption();
@@ -361,6 +367,11 @@ void ConfigManager::load(const fs::path& userHome)
     co->setDefaultValue(dataDir / DEFAULT_JS_DIR / DEFAULT_IMPORT_SCRIPT);
     co->makeOption(root, self, &args);
     args.clear();
+    
+    co = ConfigDefinition::findConfigSetup(CFG_IMPORT_SCRIPTING_IMPORT_SCRIPT_FOLDER);
+    co->setDefaultValue(dataDir / DEFAULT_JS_DIR / DEFAULT_IMPORT_SCRIPT_FOLDER);
+    co->makeOption(root, self);
+
 #endif
 
     co = ConfigDefinition::findConfigSetup(CFG_SERVER_PORT);

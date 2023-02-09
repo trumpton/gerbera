@@ -27,6 +27,7 @@ Gerbera - https://gerbera.io/
 #include <sstream>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <algorithm> // std:;sort
 
 #ifdef __HAIKU__
 #define _DEFAULT_SOURCE
@@ -251,6 +252,126 @@ bool GrbFile::isReadable(bool warn)
     }
     return true;
 }
+
+
+/**
+ * @brief Directory access class
+ */
+
+GrbDirectory::GrbDirectory(fs::path path, std::string extension, GrbDirectory::entrytype type)
+{
+  open(path, extension, type) ;
+}
+
+GrbDirectory::GrbDirectory()
+{
+  directoryExists = false ;
+}
+
+bool GrbDirectory::open(fs::path path, std::string extension, GrbDirectory::entrytype type)
+{
+  std::string ext = extension ;
+      
+  if (ext.length()>=1 && ext.at(0)!='.') { ext = std::string(".") + ext ; }
+
+  try {
+    
+    for (const auto & entry : fs::directory_iterator(path)) {
+
+      fs::path entrypath = entry.path() ;
+      bool isfile = false ;
+      bool isdir = false ;
+      
+      struct stat sb ;
+      if (stat(entrypath.string().c_str(), &sb)==0) {
+	isdir = S_ISDIR(sb.st_mode) ;
+	isfile = S_ISREG(sb.st_mode) ;
+      }
+      
+      if ( !ext.empty() && entrypath.extension() != ext ) {
+
+	// Skip if extension mismatch
+	
+      } else if ( isdir && !(type&ISDIRECTORY) ) {
+
+	// Skip directories
+
+      } else if ( isfile && !(type&ISFILE) ) {
+
+	// Skip files
+
+      } else if ( !isdir && !isfile ) {
+
+	// Skip non-directory / non-file types
+
+      } else if (entrypath.filename().string().at(0)=='.' && !(type&ISDOTFILE) ) {
+
+	// Skip dotfiles
+
+      } else {
+
+	// Process entry
+
+	if (entrypath.has_relative_path()) {
+	  entrypath = fs::absolute(entrypath) ;
+	}
+	paths.push_back(entrypath.string()) ;
+
+      }
+      
+    }
+
+    std::sort(paths.begin(),paths.end()) ;
+    directoryExists = true ;
+    
+  } catch (std::filesystem::filesystem_error &err) {
+
+    paths.clear() ;
+    directoryExists = false ; 
+  }
+
+  return directoryExists ;
+  
+}
+
+GrbDirectory::~GrbDirectory()
+{
+}
+
+bool GrbDirectory::exists()
+{
+  return directoryExists;
+}
+
+int GrbDirectory::size()
+{
+  return (int)paths.size() ;
+}
+
+const fs::path GrbDirectory::at(int index)
+{
+  return paths.at(index) ;
+}
+
+const std::string GrbDirectory::fileNameAt(int index)
+{
+  return paths.at(index).filename() ;
+}
+
+bool GrbDirectory::contains(const std::string& filename)
+{
+  for (int i=0; i<(int)paths.size(); i++) {
+    if (filename == fileNameAt(i)) return true ;
+  }
+  return false ;
+}
+/*
+/disk/media/src/gerbera/src/util/grb_fs.cc: In member function ‘bool GrbDirectory::contains(const string&)’:
+/disk/media/src/gerbera/src/util/grb_fs.cc:353:18: warning: comparison of integer expressions of different signedness: ‘int’ and ‘std::vector<std::filesystem::__cxx11::path>::size_type’ {aka ‘long unsigned int’} [-Wsign-compare]
+  353 |   for (int i=0; i<paths.size(); i++) {
+*/
+  
+
 
 bool isTheora(const fs::path& oggFilename)
 {

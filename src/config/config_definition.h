@@ -42,9 +42,10 @@
 #define DEFAULT_ACCOUNT_PASSWORD "gerbera"
 #define ALIVE_INTERVAL_MIN 62 // seconds
 #define DEFAULT_IMPORT_SCRIPT "import.js"
-#define DEFAULT_PLAYLISTS_SCRIPT "playlists.js"
-#define DEFAULT_METAFILE_SCRIPT "metadata.js"
-#define DEFAULT_COMMON_SCRIPT "common.js"
+#define DEFAULT_IMPORT_SCRIPT_FOLDER "import"
+#define DEFAULT_PLAYLISTS_SCRIPT_FOLDER "playlists"
+#define DEFAULT_METAFILE_SCRIPT_FOLDER "metadata"
+#define DEFAULT_COMMON_SCRIPT_FOLDER "common"
 #define DEFAULT_WEB_DIR "web"
 #define DEFAULT_JS_DIR "js"
 

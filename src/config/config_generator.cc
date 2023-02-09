@@ -313,14 +313,16 @@ void ConfigGenerator::generateImport(const fs::path& prefixDir, const fs::path& 
     setValue(CFG_IMPORT_SCRIPTING_CHARSET);
 
     std::string script;
-    script = prefixDir / DEFAULT_JS_DIR / DEFAULT_COMMON_SCRIPT;
-    setValue(CFG_IMPORT_SCRIPTING_COMMON_SCRIPT, script);
+    std::string scriptfolder;
+    
+    scriptfolder = prefixDir / DEFAULT_JS_DIR / DEFAULT_COMMON_SCRIPT_FOLDER;
+    setValue(CFG_IMPORT_SCRIPTING_COMMON_SCRIPT_FOLDER, scriptfolder);
 
-    script = prefixDir / DEFAULT_JS_DIR / DEFAULT_PLAYLISTS_SCRIPT;
-    setValue(CFG_IMPORT_SCRIPTING_PLAYLIST_SCRIPT, script);
+    scriptfolder = prefixDir / DEFAULT_JS_DIR / DEFAULT_PLAYLISTS_SCRIPT_FOLDER;
+    setValue(CFG_IMPORT_SCRIPTING_PLAYLIST_SCRIPT_FOLDER, scriptfolder);
 
-    script = prefixDir / DEFAULT_JS_DIR / DEFAULT_METAFILE_SCRIPT;
-    setValue(CFG_IMPORT_SCRIPTING_METAFILE_SCRIPT, script);
+    scriptfolder = prefixDir / DEFAULT_JS_DIR / DEFAULT_METAFILE_SCRIPT_FOLDER;
+    setValue(CFG_IMPORT_SCRIPTING_METAFILE_SCRIPT_FOLDER, scriptfolder);
 #endif
 
     setValue(CFG_IMPORT_SCRIPTING_VIRTUAL_LAYOUT_TYPE);
@@ -328,6 +330,9 @@ void ConfigGenerator::generateImport(const fs::path& prefixDir, const fs::path& 
 #ifdef HAVE_JS
     script = prefixDir / DEFAULT_JS_DIR / DEFAULT_IMPORT_SCRIPT;
     setValue(CFG_IMPORT_SCRIPTING_IMPORT_SCRIPT, script);
+
+    scriptfolder = prefixDir / DEFAULT_JS_DIR / DEFAULT_IMPORT_SCRIPT_FOLDER;
+    setValue(CFG_IMPORT_SCRIPTING_IMPORT_SCRIPT_FOLDER, scriptfolder);
 #endif
 
     generateMappings();
