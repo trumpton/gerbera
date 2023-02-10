@@ -31,6 +31,61 @@ function mapInitial(firstChar) {
 // doc-map-initial-end
 
 
+function escapeSlash(name) {
+    name = name.replace(/\\/g, "\\\\");
+    name = name.replace(/\//g, "\\/");
+    return name;
+}
+
+
+// Creates a container chain string
+function createContainerChain(arr) {
+    var path = '';
+    for (var i = 0; i < arr.length; i++)
+    {
+        path = path + '/' + escapeSlash(arr[i]);
+    }
+    return path;
+}
+
+// Return last item in path
+function getLastPath(location) {
+    var path = location.split('/');
+    if ((path.length > 1) && (path[path.length - 2]))
+        return path[path.length - 2];
+    else
+        return '';
+}
+
+// Return root path
+function getRootPath(rootpath, location) {
+    var path = new Array();
+
+    if (rootpath && rootpath.length !== 0)
+    {
+        rootpath = rootpath.substring(0, rootpath.lastIndexOf('/'));
+
+        var dir = location.substring(rootpath.length,location.lastIndexOf('/'));
+
+        if (dir.charAt(0) == '/')
+            dir = dir.substring(1);
+
+        path = dir.split('/');
+    }
+    else
+    {
+        dir = getLastPath(location);
+        if (dir != '')
+        {
+            dir = escapeSlash(dir);
+            path.push(dir);
+        }
+    }
+
+    return path;
+}
+
+
 // Capitalise a string
 function capitalise(str)
 {

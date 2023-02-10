@@ -1,7 +1,7 @@
 /*GRB*
   Gerbera - https://gerbera.io/
 
-  common.js - this file is part of Gerbera.
+  abc.js - this file is part of Gerbera.
 
   Copyright (C) 2018-2022 Gerbera Contributors
 

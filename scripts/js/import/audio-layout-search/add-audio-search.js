@@ -13,8 +13,6 @@ function addAudio(obj) {
 	title = obj.title;
     }
 
-    print("ADBG: " + JSON.stringify(obj)) ;
-    
     var artist = obj.meta[M_ARTIST];
     if (!artist) {
 	artist = tr("Unknown");
@@ -98,11 +96,11 @@ function addAudio(obj) {
 
     var grouplabel = tr("Music") ;
     var albumlabel = tr("Album") ;
-    var allalbumslabel = tr("- All Albums -") ;
+    var allalbumslabel = tr("All Albums") ;
     var artistlabel = tr("Artist") ;
-    var allartistslabel = tr("- All Artists -") ;
+    var allartistslabel = tr("All Artists") ;
     var tracklabel = tr("Track") ;
-    var alltrackslabel = tr("- All Tracks -") ;
+    var alltrackslabel = tr("All Tracks") ;
     var includeyear = true ;
     var includeyearexpand = true ;
     var includegenre = true ;
@@ -114,12 +112,15 @@ function addAudio(obj) {
 	
 	// Generic
 
-	All: { title: tr('- All -'),
+	All: { title: tr('All'),
 	       objectType: OBJECT_TYPE_CONTAINER, upnpclass: UPNP_CLASS_CONTAINER },
 	
-	Search: { title: tr('- Search -'),
+	Search: { title: tr('Search'),
 		  objectType: OBJECT_TYPE_CONTAINER, upnpclass: UPNP_CLASS_CONTAINER },
-	
+
+	AZLabel: { title: tr('A-Z'),
+		  objectType: OBJECT_TYPE_CONTAINER, upnpclass: UPNP_CLASS_CONTAINER },
+	     
 	// Audio Group
 
 	GroupLabel: { title: grouplabel,
@@ -149,7 +150,7 @@ function addAudio(obj) {
 	AlbumLabel: { title: albumlabel,
 		      objectType: OBJECT_TYPE_CONTAINER, upnpclass: UPNP_CLASS_CONTAINER },
 	
-	AllAlbumsLabel: { title: '- ' + tr(allalbumslabel) + ' -',
+	AllAlbumsLabel: { title: tr(allalbumslabel),
 			  objectType: OBJECT_TYPE_CONTAINER, upnpclass: UPNP_CLASS_CONTAINER },
 	
 	AlbumTitle: { title: album,
@@ -166,7 +167,7 @@ function addAudio(obj) {
 	ArtistLabel: { title: artistlabel,
 		       objectType: OBJECT_TYPE_CONTAINER, upnpclass: UPNP_CLASS_CONTAINER },
 	
-	AllArtistsLabel: { title: '- ' + tr(allartistslabel) + ' -',
+	AllArtistsLabel: { title: tr(allartistslabel),
 			   objectType: OBJECT_TYPE_CONTAINER, upnpclass: UPNP_CLASS_CONTAINER },
 	
 	ArtistName: { title: artist,
@@ -179,7 +180,7 @@ function addAudio(obj) {
 		     objectType: OBJECT_TYPE_CONTAINER, upnpclass: UPNP_CLASS_CONTAINER },
 
 	// Track
-	AllTracksLabel: { title: '- ' + tr(alltrackslabel) + ' -',
+	AllTracksLabel: { title: tr(alltrackslabel),
 			  objectType: OBJECT_TYPE_CONTAINER, upnpclass: UPNP_CLASS_CONTAINER }
 	
     };
@@ -207,7 +208,8 @@ function addAudio(obj) {
     for (var x=0 ; x<albumparts.length; x++) {
 	
 	// Include entries of at least 3 characters long, which contain valid characters in the search
-	var as1 = abcsearch(albumparts[x],1) ;
+	//var as1 = abcsearch(albumparts[x],1) ;
+	var as1 = abc(albumparts[x]) ;
 	var as2 = abcsearch(albumparts[x],2) ;
 	var as3 = abcsearch(albumparts[x],3) ;
 
@@ -219,7 +221,7 @@ function addAudio(obj) {
 		AlbumSearchABC: { title: as3, objectType: OBJECT_TYPE_CONTAINER, upnpclass: UPNP_CLASS_CONTAINER }
 	    } 
 
-	    // GroupLabel/Album/Search/[a]/[ab]/[abc]/AlbumTitle
+	    // GroupLabel/Album/Search/[a-c]/[ab]/[abc]/AlbumTitle
 	    addCdsObject(objwithtrackno, addContainerTree([chain.GroupLabel, chain.AlbumLabel, chain.Search,
 							   searchchain.AlbumSearchA, searchchain.AlbumSearchAB,
 							   searchchain.AlbumSearchABC, chain.AlbumTitleArtist])) ;
@@ -240,8 +242,8 @@ function addAudio(obj) {
     addCdsObject(objwithtrackno, addContainerTree([chain.GroupLabel, chain.AlbumLabel,
 						   chain.AllAlbumsLabel, chain.AlbumTitleArtist]))  ;
     
-    // GroupLabel/Album/[abc]/AlbumTitleArtist
-    addCdsObject(objwithtrackno, addContainerTree([chain.GroupLabel, chain.AlbumLabel, chain.AlbumABC, chain.AlbumTitleArtist]))  ;
+    // GroupLabel/Album/A-Z/[abc]/AlbumTitleArtist
+    addCdsObject(objwithtrackno, addContainerTree([chain.GroupLabel, chain.AlbumLabel, chain.AZLabel, chain.AlbumABC, chain.AlbumTitleArtist]))  ;
     
     // GroupLabel/Genre/TrackGenre/Album/AllAlbums/AlbumTitleArtist
     if (includegenre) {
@@ -252,7 +254,7 @@ function addAudio(obj) {
     // GroupLabel/Genre/TrackGenre/Album/[abc]/AlbumTitleArtist
     if (includegenre) {
 	addCdsObject(objwithtrackno, addContainerTree([chain.GroupLabel, chain.GenreLabel, chain.TrackGenre,
-						       chain.AlbumLabel, chain.AlbumABC, chain.AlbumTitleArtist]))  ;
+						       chain.AlbumLabel, chain.AZLabel, chain.AlbumABC, chain.AlbumTitleArtist]))  ;
     }
     
     //////////////////////////////////
@@ -263,7 +265,8 @@ function addAudio(obj) {
     for (var x=0 ; x<artistparts.length; x++) {
 	
 	// Include entries of at least 3 characters long, which contain valid characters in the search
-	var as1 = abcsearch(artistparts[x],1) ;
+	//var as1 = abcsearch(artistparts[x],1) ;
+	var as1 = abc(artistparts[x]) ;
 	var as2 = abcsearch(artistparts[x],2) ;
 	var as3 = abcsearch(artistparts[x],3) ;
 	
@@ -273,61 +276,34 @@ function addAudio(obj) {
 		ArtistSearchAB: { title: as2, objectType: OBJECT_TYPE_CONTAINER, upnpclass: UPNP_CLASS_CONTAINER },
 		ArtistSearchABC: { title: as3, objectType: OBJECT_TYPE_CONTAINER, upnpclass: UPNP_CLASS_CONTAINER }
 	    } 
-    
-	    // GroupLabel/Artist/Search/[a]/[ab]/[abc]/ArtistName/AllArtists
+	    
+	    // GroupLabel/Artist/Search/[a-c]/[ab]/[abc]/ArtistName/AllTracks
   	    addCdsObject(objwithalbum, addContainerTree([chain.GroupLabel, chain.ArtistLabel, chain.Search,
 							 searchchain.ArtistSearchA, searchchain.ArtistSearchAB,
-							 searchchain.ArtistSearchABC, chain.ArtistName, chain.AllArtistsLabel])) ;
+							 searchchain.ArtistSearchABC, chain.ArtistName, chain.AllTracksLabel])) ;
 	    
-	    // GroupLabel/Artist/Search/[a]/[ab]/[abc]/ArtistName/Album/AlbumName
-  	    addCdsObject(objwithtrackno, addContainerTree([chain.GroupLabel, chain.ArtistLabel, chain.Search,
+	    // GroupLabel/Artist/Search/[a-c]/[ab]/[abc]/ArtistName/Album/AlbumName
+  	    addCdsObject(objwithtrackno, addContainerTree([chain.GroupLabel, chain.ArtistLabel, chain.Search,	
 							   searchchain.ArtistSearchA, searchchain.ArtistSearchAB,
-							   searchchain.ArtistSearchABC, chain.ArtistName,
-							   chain.AlbumLabel, chain.AlbumTitle])) ;
-
-	    // GroupLabel/Genre/TrackGenre/Artist/Search/[a]/[ab]/[abc]/ArtistName/AllTracks
-	    if (includegenre) {
-		addCdsObject(objwithalbum, addContainerTree([chain.GroupLabel, chain.GenreLabel, chain.TrackGenre,
-							     chain.ArtistLabel, chain.Search,
-							     searchchain.ArtistSearchA, searchchain.ArtistSearchAB,
-							     searchchain.ArtistSearchABC, chain.ArtistName,
-							     chain.AllTrackssLabel])) ;
-	    }
-	    
-	    // GroupLabel/Genre/TrackGenre/Artist/Search/[a]/[ab]/[abc]/ArtistName/Album/AlbumName
-  	    if (includegenre) {
-		addCdsObject(objwithalbum, addContainerTree([chain.GroupLabel, chain.GenreLabel, chain.TrackGenre,
-							     chain.ArtistLabel, chain.Search,
-							     searchchain.ArtistSearchA, searchchain.ArtistSearchAB,
-							     searchchain.ArtistSearchABC, chain.ArtistName,
-							     chain.AlbumLabel, chain.AlbumTitle])) ;
-	    }
+							   searchchain.ArtistSearchABC, chain.ArtistName, chain.AlbumTitle])) ;
 	    
 	}
 
-	// GroupLabel/Artist/AllArtists/ArtistName/AllTracks
-	addCdsObject(objwithalbum, addContainerTree([chain.GroupLabel, chain.ArtistLabel, chain.AllArtistsLabel,
-						     chain.ArtistName, chain.AllTracksLabel]))  ;
-	
-	// GroupLabel/Artist/AllArtists/ArtistName/Album/AlbumTitle
-	addCdsObject(objwithtrackno, addContainerTree([chain.GroupLabel, chain.ArtistLabel, chain.AllArtists,
-						       chain.ArtistName, chain.AlbumLabel, chain.AlbumTitle]))  ;
-	
-	// GroupLabel/Artist/[abc]/ArtistName/AllTracks
-	addCdsObject(objwithalbum, addContainerTree([chain.GroupLabel, chain.ArtistLabel,
-						     chain.ArtistABC, chain.ArtistName, chain.AllTracksLabel]))  ;
-
-	// GroupLabel/Artist/[abc]/ArtistName/Album/AlbumTitle
+	// GroupLabel/Artist/AllArtists/ArtistNameAlbum
 	addCdsObject(objwithtrackno, addContainerTree([chain.GroupLabel, chain.ArtistLabel,
-						       chain.ArtistABC, chain.ArtistName, chain.AlbumLabel, chain.AlbumTitle]))  ;
-
+						   chain.AllArtistsLabel, chain.ArtistNameAlbum]))  ;
+    
+	// GroupLabel/Artist/A-Z/[abc]/ArtistNameAlbum
+	addCdsObject(objwithtrackno, addContainerTree([chain.GroupLabel, chain.ArtistLabel, chain.AZLabel,
+						       chain.ArtistABC, chain.ArtistNameAlbum]))  ;
+    
 	// GroupLabel/Genre/TrackGenre/Artist/AllArtists/ArtistName/AllTracks
 	if (includegenre) {
 	    addCdsObject(objwithalbum, addContainerTree([chain.GroupLabel, chain.GenreLabel, chain.TrackGenre,
 							 chain.ArtistLabel, chain.AllArtistsLabel, chain.ArtistName,
 							 chain.AllTracksLabel]))  ;
 	}
-	
+
 	// GroupLabel/Genre/TrackGenre/Artist/All/ArtistName/Album/AlbumTitle
 	if (includegenre) {
 	    addCdsObject(objwithtrackno, addContainerTree([chain.GroupLabel, chain.GenreLabel, chain.TrackGenre,
@@ -335,20 +311,19 @@ function addAudio(obj) {
 							   chain.AlbumLabel, chain.AlbumTitle]))  ;
 	}
 	
-	// GroupLabel/Genre/TrackGenre/Artist/[abc]/ArtistName
+	// GroupLabel/Genre/TrackGenre/Artist/A-Z/[abc]/ArtistName
 	if (includegenre) {
 	    addCdsObject(objwithalbum, addContainerTree([chain.GroupLabel, chain.GenreLabel, chain.TrackGenre,
-							 chain.ArtistLabel, chain.ArtistABC, chain.ArtistName]))  ;
+							 chain.ArtistLabel, chain.AZLabel, chain.ArtistABC, chain.ArtistName]))  ;
 	}
 	
-	// GroupLabel/Genre/TrackGenre/Artist/[abc]/ArtistName/Album/AlbumTitle
+	// GroupLabel/Genre/TrackGenre/Artist/A-Z/[abc]/ArtistName/Album/AlbumTitle
 	if (includegenre) {
 	    addCdsObject(objwithtrackno, addContainerTree([chain.GroupLabel, chain.GenreLabel, chain.TrackGenre,
-							   chain.ArtistLabel, chain.ArtistABC, chain.ArtistName,
+							   chain.ArtistLabel, chain.AZLabel, chain.ArtistABC, chain.ArtistName,
 							   chain.AlbumLabel, chain.AlbumTitle]))  ;
 	}
 	
     }
-        
-}
 
+}

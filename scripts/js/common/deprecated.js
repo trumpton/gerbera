@@ -1,7 +1,7 @@
 /*GRB*
   Gerbera - https://gerbera.io/
 
-  common.js - this file is part of Gerbera.
+  deprecated.js - this file is part of Gerbera.
 
   Copyright (C) 2018-2022 Gerbera Contributors
 
@@ -20,12 +20,17 @@
   $Id$
 */
 
-function getPlaylistType(mimetype) {
-    if (mimetype == 'audio/x-mpegurl')
-        return 'm3u';
-    if (mimetype == 'audio/x-scpls')
-        return 'pls';
-    if (mimetype == 'video/x-ms-asf' || mimetype === 'video/x-ms-asx')
-        return 'asx';
-    return '';
+
+/*
+var _deprecated_function_reported = false ;
+
+function deprecatedFunction(args) {
+
+    if (!_deprecated_function_reported) {
+	_deprecated_function_reported = true ;
+	print("warning: deprecatedFunction() is deprecated.  Please use replacementFunction()") ;
+    }
+
+    // deprecated function contents go here	
 }
+*/
