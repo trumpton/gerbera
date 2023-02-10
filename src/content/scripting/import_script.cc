@@ -47,6 +47,7 @@ ImportScript::ImportScript(const std::shared_ptr<ContentManager>& content,
     std::string scriptPath = config->getOption(CFG_IMPORT_SCRIPTING_IMPORT_SCRIPT);
     std::string scriptFolder = config->getOption(CFG_IMPORT_SCRIPTING_IMPORT_SCRIPT_FOLDER);
     std::string commonFolder = config->getOption(CFG_IMPORT_SCRIPTING_COMMON_SCRIPT_FOLDER);
+    std::string customScript = config->getOption(CFG_IMPORT_SCRIPTING_CUSTOM_SCRIPT);
     std::string customFolder = config->getOption(CFG_IMPORT_SCRIPTING_CUSTOM_SCRIPT_FOLDER);
 
     if (!commonFolder.empty()) { loadFolder(commonFolder) ; }
@@ -75,6 +76,10 @@ ImportScript::ImportScript(const std::shared_ptr<ContentManager>& content,
 
     }
 
+    if (!customScript.empty()) {
+      load(customScript) ;
+    }
+    
     if (!customFolder.empty()) {
       loadFolder(customFolder) ;
     }

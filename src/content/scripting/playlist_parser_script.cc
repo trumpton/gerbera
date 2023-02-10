@@ -237,12 +237,14 @@ PlaylistParserScript::PlaylistParserScript(const std::shared_ptr<ContentManager>
 {
     std::string scriptFolder = config->getOption(CFG_IMPORT_SCRIPTING_PLAYLIST_SCRIPT_FOLDER);
     std::string commonFolder = config->getOption(CFG_IMPORT_SCRIPTING_COMMON_SCRIPT_FOLDER);
+    std::string customScript = config->getOption(CFG_IMPORT_SCRIPTING_CUSTOM_SCRIPT);
     std::string customFolder = config->getOption(CFG_IMPORT_SCRIPTING_CUSTOM_SCRIPT_FOLDER);
 
     ScriptingRuntime::AutoLock lock(runtime->getMutex());
     
     if (!commonFolder.empty()) loadFolder(commonFolder) ;
-    if (!scriptFolder.empty()) loadFolder(scriptFolder) ;    
+    if (!scriptFolder.empty()) loadFolder(scriptFolder) ;
+    if (!customScript.empty()) load(customScript) ;
     if (!customFolder.empty()) loadFolder(customFolder) ;
 }
 
@@ -406,15 +408,17 @@ MetafileParserScript::MetafileParserScript(const std::shared_ptr<ContentManager>
 {
     std::string scriptFolder = config->getOption(CFG_IMPORT_SCRIPTING_METAFILE_SCRIPT_FOLDER);
     std::string commonFolder = config->getOption(CFG_IMPORT_SCRIPTING_COMMON_SCRIPT_FOLDER);
+    std::string customScript = config->getOption(CFG_IMPORT_SCRIPTING_CUSTOM_SCRIPT);
     std::string customFolder = config->getOption(CFG_IMPORT_SCRIPTING_CUSTOM_SCRIPT_FOLDER);
 
     defineFunction("updateCdsObject", jsUpdateCdsObject, 0);
     
-    ScriptingRuntime::AutoLock lock(runtime->getMutex());    
+    ScriptingRuntime::AutoLock lock(runtime->getMutex());
+    
     if (!commonFolder.empty()) loadFolder(commonFolder) ;
     if (!scriptFolder.empty()) loadFolder(scriptFolder) ;    
+    if (!customScript.empty()) load(customScript) ;
     if (!customFolder.empty()) loadFolder(customFolder) ;
-
 
 
 }
