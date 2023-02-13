@@ -25,15 +25,17 @@
 print("IMPORT: import.js loaded") ;
 
 // Global Variables
+var orig ;
 var object_script_path ;
 var object_autoscan_id ;
 var grb_container_type_audio ;
 var grb_container_type_image ;
 var grb_container_type_video ;
 
-function import_media_item(orig, script, autoscanid, typeaudio, typeimage, typevideo)
+function import_media_item(obj, script, autoscanid, typeaudio, typeimage, typevideo)
 {
     // Set / update global variables
+    orig = obj ;
     object_script_path = script ;
     object_autoscan_id = autoscanid ;
     grb_container_type_audio = typeaudio ;
@@ -46,7 +48,7 @@ function import_media_item(orig, script, autoscanid, typeaudio, typeimage, typev
 
     // All virtual objects are references to objects in the
     // PC-Directory, so make sure to correctly set the reference ID!
-    var obj = orig; 
+    // var obj = orig; 
     obj.refID = orig.id;
 
     const upnpClass = orig.upnpclass;
