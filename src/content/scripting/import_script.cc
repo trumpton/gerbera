@@ -42,7 +42,7 @@
 
 ImportScript::ImportScript(const std::shared_ptr<ContentManager>& content,
     const std::shared_ptr<ScriptingRuntime>& runtime)
-    : Script(content, runtime, "import", "orig", StringConverter::i2i(content->getContext()->getConfig()))
+    : Script(content, runtime, "import", "obj", StringConverter::i2i(content->getContext()->getConfig()))
 {
     std::string scriptPath = config->getOption(CFG_IMPORT_SCRIPTING_IMPORT_SCRIPT);
     load(scriptPath);

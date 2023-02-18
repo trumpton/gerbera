@@ -902,6 +902,18 @@ void Script::cdsObject2dukObject(const std::shared_ptr<CdsObject>& obj)
         int searchable = cont->isSearchable();
         setIntProperty("searchable", searchable);
     }
+
+    // Copy obj into obj->orig
+    try {
+      // see: https://github.com/svaarala/duktape/issues/2525
+      duk_dup_top(ctx) ;
+      duk_json_encode(ctx,-1) ;
+      duk_json_decode(ctx,-1) ;
+      duk_put_prop_string(ctx, -2, "orig") ;
+    } catch (...) {
+      log_error("Unable to copy obj data to obj.orig") ;
+    }
+
 }
 
 std::string Script::convertToCharset(const std::string& str, charset_convert_t chr)

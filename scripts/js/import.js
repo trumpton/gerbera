@@ -22,16 +22,15 @@
 
 // main script part
 
-if (getPlaylistType(orig.mimetype) === '') {
-    var arr = orig.mimetype.split('/');
+if (getPlaylistType(obj.mimetype) === '') {
+    var arr = obj.mimetype.split('/');
     var mime = arr[0];
 
     // All virtual objects are references to objects in the
     // PC-Directory, so make sure to correctly set the reference ID!
-    var obj = orig; 
-    obj.refID = orig.id;
+    obj.refID = obj.orig.id;
 
-    const upnpClass = orig.upnpclass;
+    const upnpClass = obj.upnpclass;
     var audioLayout = config['/import/scripting/virtual-layout/attribute::audio-layout'];
     if (!audioLayout) {
         audioLayout = 'Default';
@@ -65,14 +64,14 @@ if (getPlaylistType(orig.mimetype) === '') {
         case "object.item.textItem":
         case "object.item.bookmarkItem":
         case "object.item.playlistItem":
-            print("Unable to handle upnp class " + orig.upnpclass + " for " + obj.location);
+            print("Unable to handle upnp class " + obj.upnpclass + " for " + obj.location);
             break;
         default:
-            print("Unable to handle upnp class " + orig.upnpclass + " for " + obj.location);
+            print("Unable to handle upnp class " + obj.upnpclass + " for " + obj.location);
             if (mime === 'video' && obj.onlineservice === ONLINE_SERVICE_APPLE_TRAILERS) {
                 mime = 'trailer';
-            } else if (orig.mimetype === 'application/ogg') {
-                mime = (orig.theora === 1) ? 'video' : 'audio';
+            } else if (obj.mimetype === 'application/ogg') {
+                mime = (obj.theora === 1) ? 'video' : 'audio';
             }
             switch (mime) {
                 case "audio":
@@ -95,7 +94,7 @@ if (getPlaylistType(orig.mimetype) === '') {
                     addImage(obj);
                     break;
                 default:
-                    print("Unable to handle mime type " + orig.mimetype + " for " + obj.location);
+                    print("Unable to handle mime type " + obj.mimetype + " for " + obj.location);
                     break;
             }
             break;
