@@ -24,6 +24,7 @@ Gerbera - https://gerbera.io/
 #ifndef __GRB_FS_H__
 #define __GRB_FS_H__
 
+#include <string>
 #include <filesystem>
 #include <optional>
 #include <vector>
@@ -95,4 +96,57 @@ std::string getAVIFourCC(const fs::path& aviFilename);
 /// "/some/path/to/file.txt" -> "to"
 fs::path getLastPath(const fs::path& path);
 
+
+
+/// \brief Directory access / listing class
+///
+/// Provides functions to get files within a directory.
+/// Allows for results to be filtered (files, directories, and include .dotfiles)
+/// Allows for only specific extension to be returned.
+/// Provides functions to return absolute path, and filename
+///
+class GrbDirectory {
+
+private:
+
+  std::vector<fs::path> paths ;
+  bool directoryExists ;
+
+public:
+
+  enum entrytype {
+    ISFILE=1,
+    ISDIRECTORY=2,
+    ISDOTFILE=4
+  } ;
+
+  explicit GrbDirectory(fs::path path, std::string extension = std::string(""),
+			GrbDirectory::entrytype type = ISFILE) ;
+
+  explicit GrbDirectory() ;
+
+  ~GrbDirectory() ;
+
+  /// \brief opens directory and loads file list.  Returns true if folder opened OK
+  bool open(fs::path path, std::string extension = std::string(""),
+	    GrbDirectory::entrytype type = ISFILE) ;
+
+  /// \brief returns true if the folder exists
+  bool exists() ;
+
+  // \brief returns the number of matches found in the folder
+  int size() ;
+
+  // \brief returns the indexth match (absolute path)
+  const fs::path at(int index) ;
+
+  /// \brief returns just the filename for the indexth match
+  const std::string fileNameAt(int index) ;
+
+  /// \brief returns true if the given filename is somewhere in the matched list
+  bool contains(const std::string& filename) ;
+} ;
+
+
 #endif // __GRB_FS_H__
+
